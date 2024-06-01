@@ -36,23 +36,12 @@
 * 支持内存马小马
 * 添加DFS算法回显（AllECHO） 
 * 支持自定义请求头，格式：abc:123&&&test:123
+* 通过在payload中随机添加字符来bypass WAF
+* 支持Z-Godzilla_ekp内存马。
 
 ## FAQ 常见问题见
 
 [FAQ](./docs/FAQ.md)
-
-
-
-## 使用方法
-
-直接使用shiro_attack-{version}-SNAPSHOT-all.jar第三版
-
-![image-20211130114603322](https://img.sumsec.me//49u5049ec49u5049ec.png)
-
-在jar的当前目录下创建一个data文件夹，里面创建一个shiro_keys.txt文件，文件内容是shiro_key。lib目前是CommonsBeanutils依赖的版本。
-
-![image-20211130113559530](https://img.sumsec.me//44u5044ec44u5044ec.png)
-
 
 
 ---

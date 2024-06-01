@@ -15,11 +15,41 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.shiro.crypto.AesCipherService;
 import org.apache.shiro.crypto.CipherService;
 import org.apache.shiro.util.ByteSource;
+import java.util.Random;
+
 
 
 
 public class Shiro implements FramePayload {
     public Shiro() {
+    }
+
+    public static String insertSpecialChars(String str) {
+        int strLength = str.length();
+        Random random = new Random();
+
+        // 生成三个不重复的随机位置
+        int position1 = random.nextInt(strLength);
+        int position2 = random.nextInt(strLength);
+        int position3 = random.nextInt(strLength);
+
+        // 确保三个位置不重复
+        while (position2 == position1) {
+            position2 = random.nextInt(strLength);
+        }
+        while (position3 == position1 || position3 == position2) {
+            position3 = random.nextInt(strLength);
+        }
+
+        // 生成随机特殊符号
+        String specialChar = String.valueOf("@@*");
+
+        // 在三个随机位置插入特殊符号
+        StringBuilder sb = new StringBuilder(str);
+        sb.insert(position1, specialChar);
+        sb.insert(position2, specialChar);
+        sb.insert(position3, specialChar);
+        return sb.toString();
     }
 
     @Override
@@ -42,13 +72,17 @@ public class Shiro implements FramePayload {
             String byteSource = shiroGCM.encrypt(key,serpayload);
 //            String byteSource = gcmEncrypt.encrypt(key, serpayload);
 //            encryptpayload = byteSource.getBytes();
+            byteSource = insertSpecialChars(byteSource);
             System.out.println(shiroKeyWord + "=" + byteSource);
             return shiroKeyWord + "=" + byteSource;
 
         } else {
+            System.out.println("sendPayload");
 //            encryptpayload = AesUtil.encrypt(serpayload, bkey);
             CbcEncrypt cbcEncrypt = new CbcEncrypt();
             String byteSource = cbcEncrypt.encrypt(key, serpayload);
+            byteSource = insertSpecialChars(byteSource);
+            System.out.println(byteSource);
             System.out.println(shiroKeyWord + "=" + byteSource);
             return shiroKeyWord + "=" + byteSource;
         }

